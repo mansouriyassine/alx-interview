@@ -5,6 +5,7 @@ This module contains a function, pascal_triangle(n), that generates
 Pascal's triangle up to the nth row. For n <= 0, it returns an empty list.
 """
 
+
 def pascal_triangle(n):
     """Generate Pascal's triangle of height n.
 
