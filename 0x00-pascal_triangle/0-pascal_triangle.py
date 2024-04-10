@@ -5,15 +5,14 @@ This module contains a function, pascal_triangle(n), that generates
 Pascal's triangle up to the nth row. For n <= 0, it returns an empty list.
 """
 
-
 def pascal_triangle(n):
     """Generate Pascal's triangle of height n.
 
     Args:
-        n (int): The height of the triangle.
+    n (int): The height of the triangle.
 
     Returns:
-        list of lists: A list containing the rows of Pascal's triangle.
+    list of lists: A list containing the rows of Pascal's triangle.
     """
     if n <= 0:
         return []
@@ -27,5 +26,4 @@ def pascal_triangle(n):
         row.append(1)
         triangle.append(row)
 
-
-return triangle
+    return triangle
