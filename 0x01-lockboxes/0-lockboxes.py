@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from collections import deque
 
+
 def canUnlockAll(boxes):
     if not boxes:
         return False
