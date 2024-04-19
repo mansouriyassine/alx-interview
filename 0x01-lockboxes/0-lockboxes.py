@@ -1,7 +1,17 @@
 #!/usr/bin/python3
 from collections import deque
 
+
 def canUnlockAll(boxes):
+    """
+    Function to determine if all boxes can be unlocked.
+    
+    Args:
+        boxes (list): A list of lists representing boxes and their keys.
+        
+    Returns:
+        bool: True if all boxes can be unlocked, False otherwise.
+    """
     if not boxes:
         return False
 
