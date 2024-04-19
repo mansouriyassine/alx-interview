@@ -1,30 +1,26 @@
 #!/usr/bin/python3
-from collections import deque
-
 
 def canUnlockAll(boxes):
     """
-    Function to determine if all boxes can be unlocked.
+    Determine if all boxes can be opened.
 
     Args:
-        boxes (list): A list of lists representing boxes and their keys.
+        boxes (list): A list of lists representing the locked boxes.
+                      Each inner list contains the keys present in that box.
 
     Returns:
-        bool: True if all boxes can be unlocked, False otherwise.
+        bool: True if all boxes can be opened, False otherwise.
     """
     if not boxes:
         return False
 
-    n = len(boxes)
-    visited = set()
-    queue = deque([0])
+    keys = set(boxes[0])
+    visited = set([0])
 
-    while queue:
-        current_box = queue.popleft()
-        visited.add(current_box)
+    while keys:
+        key = keys.pop()
+        if key < len(boxes):
+            visited.add(key)
+            keys.update(set(boxes[key]) - visited)
 
-        for key in boxes[current_box]:
-            if key < n and key not in visited:
-                queue.append(key)
-
-    return len(visited) == n
+    return len(visited) == len(boxes)
