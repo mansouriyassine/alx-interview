@@ -4,6 +4,7 @@
 '''
 
 
+
 def canUnlockAll(boxes):
     '''
     Check if it's possible to unlock all boxes.
@@ -24,6 +25,7 @@ def canUnlockAll(boxes):
     # mark the first box as visited
     visited[0] = True
 
+<<<<<<< HEAD
     # initialize a list to keep track of keys found in boxes
     found_keys = [0]
 
@@ -39,3 +41,6 @@ def canUnlockAll(boxes):
 
     # check if all boxes have been visited
     return all(visited)
+=======
+    return len(visited) == len(boxes)
+>>>>>>> 8f72a217a84fa1c2359bfffc7a5a4dc4d4d7a3b0
