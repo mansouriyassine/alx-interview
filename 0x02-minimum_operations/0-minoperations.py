@@ -1,25 +1,36 @@
 #!/usr/bin/python3
-"""
-Calculates the minimum number of operations needed
-to achieve a given number of characters
-"""
-
+'''Minimum Operations python3 challenge'''
 
 def minOperations(n):
-    """
-    Calculates the fewest number of operations needed to
-    result in exactly n H characters in the file
-    """
-    if n <= 1:
+    '''calculates the fewest number of
+    operations needed to result in exactly n H
+    characters in this file.
+    Returns:
+        Integer : if n is impossible to achieve, return 0
+    '''
+    pasted_chars = 1  # how many chars in the file
+    clipboard = 0  # how many H's copied
+    counter = 0  # operations counter
+
+    while pasted_chars < n:
+        if clipboard == 0:
+            clipboard = pasted_chars
+            counter += 1
+        if pasted_chars == 1:
+            pasted_chars += clipboard
+            counter += 1
+            continue
+        remaining = n - pasted_chars
+        if remaining < clipboard:
+            return 0
+        if remaining % pasted_chars != 0:
+            pasted_chars += clipboard
+            counter += 1
+        else:
+            clipboard = pasted_chars
+            pasted_chars += clipboard
+            counter += 2
+    if pasted_chars == n:
+        return counter
+    else:
         return 0
-
-    dp = [0] * (n + 1)
-
-    for i in range(2, n + 1):
-        dp[i] = i
-
-        for j in range(2, int(i**0.5) + 1):
-            if i % j == 0:
-                dp[i] = min(dp[i], dp[j] + i // j)
-                dp[i] = min(dp[i], dp[i // j] + j)
-    return dp[n]
