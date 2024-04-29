@@ -20,7 +20,7 @@ def signal_handler(sig, frame):
     """
     Signal handler function for SIGINT signal (Ctrl+C).
     Prints statistics and exits gracefully upon receiving the signal.
-    
+
     Parameters:
         sig (int): The signal number.
         frame (frame): The current stack frame.
@@ -38,6 +38,7 @@ def print_stats():
     for status_code in sorted(status_code_counts.keys()):
         if status_code_counts[status_code] > 0:
             print(status_code, ":", status_code_counts[status_code])
+
 
 signal.signal(signal.SIGINT, signal_handler)
 
