@@ -1,51 +1,42 @@
 #!/usr/bin/python3
 import sys
+import re
 import signal
 
-status_counts = {
-    200: 0,
-    301: 0,
-    400: 0,
-    401: 0,
-    403: 0,
-    404: 0,
-    405: 0,
-    500: 0
-}
-
 total_file_size = 0
-line_count = 0
-
-
-def print_stats():
-    """Prints the current statistics."""
-    print("File size:", total_file_size)
-    for code, count in sorted(status_counts.items()):
-        if count > 0:
-            print("{}: {}".format(code, count))
-
+status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
 
 def signal_handler(sig, frame):
-    """Handler for the SIGINT signal (CTRL+C)."""
+    """Signal handler function to print statistics on keyboard interruption."""
     print_stats()
     sys.exit(0)
 
+def print_stats():
+    """Function to print accumulated file size and status code counts."""
+    global total_file_size, status_code_counts
+    print("File size:", total_file_size)
+    for status_code in sorted(status_code_counts.keys()):
+        if status_code_counts[status_code] > 0:
+            print(status_code, ":", status_code_counts[status_code])
+
 signal.signal(signal.SIGINT, signal_handler)
 
-for line in sys.stdin:
-    parts = line.split()
-    if len(parts) == 7:
-        ip_address, _, _, _, status_code, file_size = parts
-        try:
-            status_code = int(status_code)
-            file_size = int(file_size)
-            if status_code in status_counts:
-                status_counts[status_code] += 1
-                total_file_size += file_size
-                line_count += 1
-                if line_count % 10 == 0:
-                    print_stats()
-        except ValueError:
-            continue
+pattern = re.compile(r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] "GET /projects/260 HTTP/1.1" (\d+) (\d+)$')
 
-print_stats()
+try:
+    for i, line in enumerate(sys.stdin, start=1):
+        match = re.match(pattern, line.strip())
+        if match:
+            file_size = int(match.group(5))
+            status_code = int(match.group(3))
+
+            total_file_size += file_size
+
+            if status_code in status_code_counts:
+                status_code_counts[status_code] += 1
+
+            if i % 10 == 0:
+                print_stats()
+
+except KeyboardInterrupt:
+    print_stats()
