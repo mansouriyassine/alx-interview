@@ -15,38 +15,52 @@ status_code_counts = {
     500: 0
 }
 
+
 def signal_handler(sig, frame):
-    """handler function to print statistics on keyboard interruption."""
+    """
+    Signal handler function for SIGINT signal (Ctrl+C).
+    Prints statistics and exits gracefully upon receiving the signal.
+    
+    Parameters:
+        sig (int): The signal number.
+        frame (frame): The current stack frame.
+    """
     print_stats()
     sys.exit(0)
 
 
 def print_stats():
-    """Function to print accumulated file size and status code counts."""
+    """
+    statistics related to total file size and count of HTTP status codes.
+    """
     global total_file_size, status_code_counts
     print("File size:", total_file_size)
     for status_code in sorted(status_code_counts.keys()):
         if status_code_counts[status_code] > 0:
             print(status_code, ":", status_code_counts[status_code])
 
-
 signal.signal(signal.SIGINT, signal_handler)
 
-pattern = re.compile(r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] "GET /projects/260 '
-                     r'HTTP/1.1" (\d+) (\d+)$')
+pattern = re.compile(r'''
+    ^
+    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
+    \s-\s
+    \[(.*?)\]
+    \s"GET\s/projects/260\sHTTP/1.1"
+    \s(\d+)
+    \s(\d+)
+    $
+''', re.VERBOSE)
 
 try:
     for i, line in enumerate(sys.stdin, start=1):
         match = re.match(pattern, line.strip())
         if match:
-            file_size = int(match.group(4))
-            status_code = int(match.group(3))
-
+            file_size = int(match.group(6))
+            status_code = int(match.group(5))
             total_file_size += file_size
-
             if status_code in status_code_counts:
                 status_code_counts[status_code] += 1
-
             if i % 10 == 0:
                 print_stats()
 
