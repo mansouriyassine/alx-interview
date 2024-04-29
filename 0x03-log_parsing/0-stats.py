@@ -6,17 +6,19 @@ import signal
 total_file_size = 0
 status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
 
+
 def signal_handler(sig, frame):
     """
     Signal handler function for SIGINT signal (Ctrl+C).
     Prints statistics and exits gracefully upon receiving the signal.
-    
+
     Parameters:
         sig (int): The signal number.
         frame (frame): The current stack frame.
     """
     print_stats()
     sys.exit(0)
+
 
 def print_stats():
     """
