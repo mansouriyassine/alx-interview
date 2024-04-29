@@ -30,6 +30,7 @@ def print_stats():
         if status_code_counts[status_code] > 0:
             print(status_code, ":", status_code_counts[status_code])
 
+
 signal.signal(signal.SIGINT, signal_handler)
 
 pattern = re.compile(r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] "GET /projects/260 '
