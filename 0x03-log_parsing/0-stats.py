@@ -4,16 +4,7 @@ import re
 import signal
 
 total_file_size = 0
-status_code_counts = {
-    200: 0,
-    301: 0,
-    400: 0,
-    401: 0,
-    403: 0,
-    404: 0,
-    405: 0,
-    500: 0
-}
+status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
 
 def signal_handler(sig, frame):
     """
@@ -29,7 +20,7 @@ def signal_handler(sig, frame):
 
 def print_stats():
     """
-    Prints statistics related to total file size and count of HTTP status codes.
+    Prints accumulated file size and status code counts.
     """
     global total_file_size, status_code_counts
     print("File size:", total_file_size)
@@ -39,23 +30,15 @@ def print_stats():
 
 signal.signal(signal.SIGINT, signal_handler)
 
-pattern = re.compile(r'''
-    ^
-    (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})
-    \s-\s
-    \[(.*?)\]
-    \s"GET\s/projects/260\sHTTP/1.1"
-    \s(\d+)
-    \s(\d+)
-    \s*$
-''', re.VERBOSE)
+pattern = re.compile(r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] "GET /projects/260 '
+                     r'HTTP/1.1" (\d+) (\d+)$')
 
 try:
     for i, line in enumerate(sys.stdin, start=1):
         match = re.match(pattern, line.strip())
         if match:
-            file_size = int(match.group(6))
-            status_code = int(match.group(5))
+            file_size = int(match.group(4))
+            status_code = int(match.group(3))
             total_file_size += file_size
             if status_code in status_code_counts:
                 status_code_counts[status_code] += 1
