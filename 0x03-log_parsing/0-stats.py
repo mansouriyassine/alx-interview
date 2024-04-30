@@ -1,52 +1,94 @@
 #!/usr/bin/python3
-import sys
+"""Log Parsing
+
+This script reads stdin line by line and computes metrics:
+
+Input format:
+<IP Address> - [<date>] "GET /projects/260 HTTP/1.1" <status code> <file size>
+If the format is not this one, the line is skipped.
+After every 10 lines and/or a keyboard interruption (CTRL + C), prints these
+statistics from the beginning:
+    Total file size: File size: <total size>
+    where <total size> is the sum of all previous <file size> (format above)
+    Number of lines by status code:
+        possible status codes: 200, 301, 400, 401, 403, 404, 405 and 500.
+        If a status code doesn’t appear or is not an integer, it doesn’t
+        print anything for this status code.
+        Format: <status code>: <number>.
+        Status codes are printed in ascending order.
+"""
+
 import re
-import signal
-
-total_file_size = 0
-status_code_counts = {200: 0, 301: 0, 400: 0, 401: 0, 403: 0, 404: 0, 405: 0, 500: 0}
 
 
-def signal_handler(sig, frame):
-    """
-    Signal handler function for SIGINT signal (Ctrl+C).
-    Prints statistics and exits gracefully upon receiving the signal.
+def extract_input(input_line):
+    '''Extracts sections of a line of an HTTP request log.'''
+    fp = (
+        r'\s*(?P<ip>\S+)\s*',
+        r'\s*\[(?P<date>\d+\-\d+\-\d+ \d+:\d+:\d+\.\d+)\]',
+        r'\s*"(?P<request>[^"]*)"\s*',
+        r'\s*(?P<status_code>\S+)',
+        r'\s*(?P<file_size>\d+)'
+    )
+    info = {
+        'status_code': 0,
+        'file_size': 0,
+    }
+    log_fmt = '{}\\-{}{}{}{}\\s*'.format(fp[0], fp[1], fp[2], fp[3], fp[4])
+    resp_match = re.fullmatch(log_fmt, input_line)
+    if resp_match is not None:
+        status_code = resp_match.group('status_code')
+        file_size = int(resp_match.group('file_size'))
+        info['status_code'] = status_code
+        info['file_size'] = file_size
+    return info
 
-    Parameters:
-        sig (int): The signal number.
-        frame (frame): The current stack frame.
-    """
-    print_stats()
-    sys.exit(0)
+
+def print_statistics(total_file_size, status_codes_stats):
+    '''Prints the accumulated statistics of the HTTP request log.'''
+    print('File size: {:d}'.format(total_file_size), flush=True)
+    for status_code in sorted(status_codes_stats.keys()):
+        num = status_codes_stats.get(status_code, 0)
+        if num > 0:
+            print('{:s}: {:d}'.format(status_code, num), flush=True)
 
 
-def print_stats():
-    """
-    Prints accumulated file size and status code counts.
-    """
-    global total_file_size, status_code_counts
-    print("File size:", total_file_size)
-    for status_code in sorted(status_code_counts.keys()):
-        if status_code_counts[status_code] > 0:
-            print(status_code, ":", status_code_counts[status_code])
+def update_metrics(line, total_file_size, status_codes_stats):
+    '''Updates the metrics from a given HTTP request log.'''
+    line_info = extract_input(line)
+    status_code = line_info.get('status_code', '0')
+    if status_code in status_codes_stats.keys():
+        status_codes_stats[status_code] += 1
+    return total_file_size + line_info['file_size']
 
 
-signal.signal(signal.SIGINT, signal_handler)
+def run():
+    '''Starts the log parser.'''
+    line_num = 0
+    total_file_size = 0
+    status_codes_stats = {
+        '200': 0,
+        '301': 0,
+        '400': 0,
+        '401': 0,
+        '403': 0,
+        '404': 0,
+        '405': 0,
+        '500': 0,
+    }
+    try:
+        while True:
+            line = input()
+            total_file_size = update_metrics(
+                line,
+                total_file_size,
+                status_codes_stats,
+            )
+            line_num += 1
+            if line_num % 10 == 0:
+                print_statistics(total_file_size, status_codes_stats)
+    except (KeyboardInterrupt, EOFError):
+        print_statistics(total_file_size, status_codes_stats)
 
-pattern = re.compile(r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) - \[(.*?)\] "GET /projects/260 '
-                     r'HTTP/1.1" (\d+) (\d+)$')
-
-try:
-    for i, line in enumerate(sys.stdin, start=1):
-        match = re.match(pattern, line.strip())
-        if match:
-            file_size = int(match.group(4))
-            status_code = int(match.group(3))
-            total_file_size += file_size
-            if status_code in status_code_counts:
-                status_code_counts[status_code] += 1
-            if i % 10 == 0:
-                print_stats()
-
-except KeyboardInterrupt:
-    print_stats()
+if __name__ == '__main__':
+    run()
