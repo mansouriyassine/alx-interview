@@ -46,11 +46,7 @@ def validUTF8(data):
         if i + num_bytes > len(data):
             return False
         for j in range(i + 1, i + num_bytes):
-            if not (j < len(data) and is_continuation_byte(data[j])):
+            if not is_continuation_byte(data[j]):
                 return False
         i += num_bytes
     return True
-
-# Test cases
-data = [467, 133, 108]
-print(validUTF8(data))
