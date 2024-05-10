@@ -50,7 +50,3 @@ def validUTF8(data):
                 return False
         i += num_bytes
     return True
-
-# Test cases
-data = [467, 133, 108]
-print(validUTF8(data))
