@@ -50,3 +50,42 @@ def validUTF8(data):
                 return False
         i += num_bytes
     return True
+
+
+# Test cases
+if __name__ == "__main__":
+    # Test case 1
+    data1 = [0b11100100, 0b10000101, 0b1101100]
+    print(validUTF8(data1))
+
+    # Test case 2
+    data2 = [240, 188, 128, 167]
+    print(validUTF8(data2))
+
+    # Test case 3
+    data3 = [235, 140]
+    print(validUTF8(data3))
+
+    # Test case 4
+    data4 = [345, 467]
+    print(validUTF8(data4))
+
+    # Test case 5
+    data5 = [250, 145, 145, 145, 145]
+    print(validUTF8(data5))
+
+    # Test case 6
+    data6 = [0, 0, 0, 0, 0, 0]
+    print(validUTF8(data6))
+
+    # Test case 7
+    data7 = []
+    print(validUTF8(data7))
+
+    # Test case 8 (Long data set, valid)
+    data8 = [240, 144, 128, 128] * 10
+    print(validUTF8(data8))
+
+    # Test case 9 (Long data set, invalid)
+    data9 = [240, 144, 128, 128] * 10 + [240, 144]
+    print(validUTF8(data9))
