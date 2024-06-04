@@ -45,16 +45,18 @@ def makeChange(coins, total):
              - Returns -1 if total cannot be met by any number of coins
                you have.
     """
-    if total < 0:
-        return -1
+    if total <= 0:
+        return 0
 
-    min_coins = [float('inf')] * (total + 1)
-    min_coins[0] = 0
+    dp = [float('inf')] * (total + 1)
+    dp[0] = 0
 
-    for amount in range(1, total + 1):
+    for i in range(1, total + 1):
         for coin in coins:
-            if coin <= amount:
-                min_coins[amount] = min(min_coins[amount],
-                                        min_coins[amount - coin] + 1)
+            if coin <= i:
+                dp[i] = min(dp[i], dp[i - coin] + 1)
 
-    return min_coins[total] if min_coins[total] != float('inf') else -1
+    if dp[total] == float('inf'):
+        return -1
+    else:
+        return dp[total]
