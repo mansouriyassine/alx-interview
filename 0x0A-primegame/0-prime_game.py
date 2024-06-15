@@ -105,6 +105,7 @@ def isWinner(x, nums):
     else:
         return None
 
+
 if __name__ == "__main__":
     print("Winner: {}".format(isWinner(3, [4, 5, 1])))
     print("Winner: {}".format(isWinner(5, [2, 5, 1, 4, 3])))
