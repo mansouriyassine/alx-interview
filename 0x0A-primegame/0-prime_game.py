@@ -94,9 +94,9 @@ def isWinner(x, nums):
 
     for n in nums:
         if dp[n]:
-            wins["Maria"] += 1
-        else:
             wins["Ben"] += 1
+        else:
+            wins["Maria"] += 1
 
     if wins["Maria"] > wins["Ben"]:
         return "Maria"
@@ -107,5 +107,4 @@ def isWinner(x, nums):
 
 
 if __name__ == "__main__":
-    print("Winner: {}".format(isWinner(3, [4, 5, 1])))
     print("Winner: {}".format(isWinner(5, [2, 5, 1, 4, 3])))
