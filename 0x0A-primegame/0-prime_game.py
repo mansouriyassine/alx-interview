@@ -10,101 +10,57 @@ The player that cannot make a move loses the game.
 They play x rounds of the game, where n may be different for each round.
 Assuming Maria always goes first and both players play optimally,
 determine who the winner of each game is.
-
-Prototype: def isWinner(x, nums)
-where x is the number of rounds and nums is an array of n
-Return: name of the player that won the most rounds
-If the winner cannot be determined, return None
-You can assume n and x will not be larger than 10000
-You cannot import any packages in this task
-
-Example:
-
-x = 3, nums = [4, 5, 1]
-First round: 4
-
-Maria picks 2 and removes 2, 4, leaving 1, 3
-Ben picks 3 and removes 3, leaving 1
-Ben wins because there are no prime numbers left for Maria to choose
-Second round: 5
-
-Maria picks 2 and removes 2, 4, leaving 1, 3, 5
-Ben picks 3 and removes 3, leaving 1, 5
-Maria picks 5 and removes 5, leaving 1
-Maria wins because there are no prime numbers left for Ben to choose
-Third round: 1
-
-Ben wins because there are no prime numbers for Maria to choose
-Result: Ben has the most wins
-
-GitHub repository: alx-interview
-Directory: 0x0A-primegame
-File: 0-prime_game.py
 """
-
-
-def sieve_of_eratosthenes(max_n):
-    """
-    Sieve of Eratosthenes algorithm to find all prime numbers up to max_n.
-
-    Parameters:
-    - max_n: Maximum number up to which prime numbers are found.
-
-    Returns:
-    - List of prime numbers up to max_n.
-    """
-    is_prime = [True] * (max_n + 1)
-    p = 2
-    while (p * p <= max_n):
-        if is_prime[p]:
-            for i in range(p * p, max_n + 1, p):
-                is_prime[i] = False
-        p += 1
-    prime_numbers = [p for p in range(2, max_n + 1) if is_prime[p]]
-    return prime_numbers
 
 
 def isWinner(x, nums):
     """
-    Determine the winner of each round of the prime game.
+    Determine the winner of the Prime Game.
 
-    Parameters:
-    - x: Number of rounds.
-    - nums: List of integers n for each round.
+    Args:
+    x (int): The number of rounds.
+    nums (list): An array of n for each round.
 
     Returns:
-    - Name of the player that won the most rounds ('Maria' or 'Ben').
-      If the winner cannot be determined, return None.
+    str: Name of the player that won the most rounds.
+         If the winner cannot be determined, returns None.
     """
+    if x <= 0 or not nums:
+        return None
+
+    def sieve(n):
+        """Generate primes up to n using Sieve of Eratosthenes."""
+        primes = [True] * (n + 1)
+        primes[0] = primes[1] = False
+        for i in range(2, int(n**0.5) + 1):
+            if primes[i]:
+                for j in range(i*i, n + 1, i):
+                    primes[j] = False
+        return primes
+
     max_n = max(nums)
-    prime_numbers = sieve_of_eratosthenes(max_n)
+    primes = sieve(max_n)
 
-    dp = [False] * (max_n + 1)
+    def count_primes(n):
+        """Count the number of primes up to n."""
+        return sum(primes[:n+1])
 
-    for i in range(2, max_n + 1):
-        dp[i] = False
-        for prime in prime_numbers:
-            if prime > i:
-                break
-            if not dp[i - prime]:
-                dp[i] = True
-                break
-
-    wins = {"Maria": 0, "Ben": 0}
+    maria_wins = 0
+    ben_wins = 0
 
     for n in nums:
-        if dp[n]:
-            wins["Ben"] += 1
+        if n <= 1:
+            ben_wins += 1
         else:
-            wins["Maria"] += 1
+            prime_count = count_primes(n)
+            if prime_count % 2 == 0:
+                ben_wins += 1
+            else:
+                maria_wins += 1
 
-    if wins["Maria"] > wins["Ben"]:
+    if maria_wins > ben_wins:
         return "Maria"
-    elif wins["Ben"] > wins["Maria"]:
+    elif ben_wins > maria_wins:
         return "Ben"
     else:
         return None
-
-
-if __name__ == "__main__":
-    print("Winner: {}".format(isWinner(5, [2, 5, 1, 4, 3])))
